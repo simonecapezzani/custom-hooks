@@ -19,64 +19,64 @@ function App() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
 
-  const { isFetching, error, fetchedData } = useFetch(fetchUserPlaces, []);
+  const { isFetching, error, fetchedData: userPlaces, setFetchedData: setUserPlaces } = useFetch(fetchUserPlaces, []);
 
 
-  // function handleStartRemovePlace(place) {
-  //   setModalIsOpen(true);
-  //   selectedPlace.current = place;
-  // }
+  function handleStartRemovePlace(place) {
+    setModalIsOpen(true);
+    selectedPlace.current = place;
+  }
 
   function handleStopRemovePlace() {
     setModalIsOpen(false);
   }
 
-  // async function handleSelectPlace(selectedPlace) {
-  //   // await updateUserPlaces([selectedPlace, ...userPlaces]);
+  async function handleSelectPlace(selectedPlace) {
+  // await updateUserPlaces([selectedPlace, ...userPlaces]);
 
-  //   setUserPlaces((prevPickedPlaces) => {
-  //     if (!prevPickedPlaces) {
-  //       prevPickedPlaces = [];
-  //     }
-  //     if (prevPickedPlaces.some((place) => place.id === selectedPlace.id)) {
-  //       return prevPickedPlaces;
-  //     }
-  //     return [selectedPlace, ...prevPickedPlaces];
-  //   });
+    setUserPlaces((prevPickedPlaces) => {
+      if (!prevPickedPlaces) {
+        prevPickedPlaces = [];
+      }
+      if (prevPickedPlaces.some((place) => place.id === selectedPlace.id)) {
+        return prevPickedPlaces;
+      }
+      return [selectedPlace, ...prevPickedPlaces];
+    });
 
-  //   try {
-  //     await updateUserPlaces([selectedPlace, ...userPlaces]);
-  //   } catch (error) {
-  //     setUserPlaces(userPlaces);
-  //     setErrorUpdatingPlaces({
-  //       message: error.message || 'Failed to update places.',
-  //     });
-  //   }
-  // }
+    try {
+      await updateUserPlaces([selectedPlace, ...userPlaces]);
+    } catch (error) {
+      setUserPlaces(userPlaces);
+      setErrorUpdatingPlaces({
+        message: error.message || 'Failed to update places.',
+      });
+    }
+  }
 
-  // const handleRemovePlace = useCallback(
-  //   async function handleRemovePlace() {
-  //     setUserPlaces((prevPickedPlaces) =>
-  //       prevPickedPlaces.filter(
-  //         (place) => place.id !== selectedPlace.current.id
-  //       )
-  //     );
+  const handleRemovePlace = useCallback(
+    async function handleRemovePlace() {
+      setUserPlaces((prevPickedPlaces) =>
+        prevPickedPlaces.filter(
+          (place) => place.id !== selectedPlace.current.id
+        )
+      );
 
-  //     try {
-  //       await updateUserPlaces(
-  //         userPlaces.filter((place) => place.id !== selectedPlace.current.id)
-  //       );
-  //     } catch (error) {
-  //       setUserPlaces(userPlaces);
-  //       setErrorUpdatingPlaces({
-  //         message: error.message || 'Failed to delete place.',
-  //       });
-  //     }
+      try {
+        await updateUserPlaces(
+          userPlaces.filter((place) => place.id !== selectedPlace.current.id)
+        );
+      } catch (error) {
+        setUserPlaces(userPlaces);
+        setErrorUpdatingPlaces({
+          message: error.message || 'Failed to delete place.',
+        });
+      }
 
-  //     setModalIsOpen(false);
-  //   },
-  //   [userPlaces]
-  // );
+      setModalIsOpen(false);
+    },
+    [userPlaces]
+  );
 
   function handleError() {
     setErrorUpdatingPlaces(null);
@@ -97,7 +97,7 @@ function App() {
       <Modal open={modalIsOpen} onClose={handleStopRemovePlace}>
         <DeleteConfirmation
           onCancel={handleStopRemovePlace}
-          // onConfirm={handleRemovePlace}
+          onConfirm={handleRemovePlace}
         />
       </Modal>
 
@@ -117,13 +117,13 @@ function App() {
             fallbackText="Select the places you would like to visit below."
             isLoading={isFetching}
             loadingText="Fetching your places..."
-            places={fetchedData}
-            // onSelectPlace={handleStartRemovePlace}
+            places={userPlaces}
+            onSelectPlace={handleStartRemovePlace}
           />
         )}
 
         <AvailablePlaces
-        // onSelectPlace={handleSelectPlace} 
+          onSelectPlace={handleSelectPlace} 
         />
       </main>
     </>
